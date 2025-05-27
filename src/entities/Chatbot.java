@@ -75,6 +75,11 @@ public class Chatbot{
 			listarConhecimento();
 			return true;
 		}
+		
+		if (mensagem.contains("editar")) {
+			editarConhecimento();
+			return true;
+		}
 
 		return false;
 	}
@@ -271,5 +276,9 @@ public class Chatbot{
 			);
 			temp++;
 		}
+	}
+	
+	private void editarConhecimento() {
+		
 	}
 }
