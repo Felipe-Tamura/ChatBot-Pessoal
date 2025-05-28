@@ -285,22 +285,39 @@ public class Chatbot{
 		// Listar conhecimento que o bot possui
 		if (listarConhecimento()) {
 			System.out.print(
-					"Chatbot: Qual conhecimento você deseja editar? Digite a palavra chave: "
+					"\nChatbot: Qual conhecimento você deseja editar? Digite a palavra chave: "
 			);
 			String palavraChave = tratarMensagem(sc.nextLine());
 			int temp = 1;
-			for (String palavra: conhecimento.keySet()) {
-				if (palavra.equals(palavraChave)) {
-					for (String lista: conhecimento.get(palavra)) {
-						System.out.println(temp + ". " + lista);
-						temp++;
-					}
-					System.out.print(
-							"Chatbot: Qual dessas palavras você deseja alterar? Digite o número: "
-					);
-					int indexFrase = sc.nextInt();
-					
-				}
+			if (conhecimento.containsKey(palavraChave)) {
+				//for (String palavra: conhecimento.keySet()) {
+					//if (palavra.equals(palavraChave)) {
+						for (String lista: conhecimento.get(palavraChave)) {
+							System.out.println("\n" + temp + ". " + lista);
+							temp++;
+						}
+						System.out.print(
+								"\nChatbot: Qual dessas palavras você deseja alterar? Digite o número: "
+						);
+						
+						int indexFrase = sc.nextInt() - 1;
+						sc.nextLine();
+						if (indexFrase < 0 || indexFrase > (conhecimento.get(palavraChave).size() - 1)) {
+							System.out.println("Chatbot: Palavra não encontrada!");
+							return;
+						}
+						
+						System.out.printf("Chatbot: Resposta escolhida: %s", conhecimento.get(palavraChave).get(indexFrase));
+						System.out.println("\nChatbot: Agora me diga a resposta editada: ");
+						String respostaEditada = tratarMensagem(sc.nextLine());
+						conhecimento.get(palavraChave).remove(indexFrase);
+						conhecimento.get(palavraChave).add(respostaEditada);
+						System.out.println("Chatbot: Resposta editada com sucesso!");
+						//break;
+					//}
+				//}
+			}else {
+				System.out.println("Chatbot: palavra-chave não encontrada");
 			}
 			
 		}else {
