@@ -17,6 +17,8 @@ Um chatbot inteligente desenvolvido em Java que aprende dinamicamente através d
 - `ensinar` - Ensina o chatbot sobre um novo assunto
 - `ajuda` ou `help` - Exibe o menu de ajuda
 - `listar` ou `conhecimento` - Mostra todas as palavras-chave aprendidas
+- `editar` - Edita a resposta das palavras-chaves aprendidas
+- `esquecer` ou `remover` - Remove respostas ou palavras-chaves aprendidas
 
 ### Capacidades do Chatbot
 - Reconhecimento de saudações (`oi`, `olá`, `hey`)
@@ -112,7 +114,7 @@ O algoritmo calcula um score baseado na correspondência de palavras-chave:
 - Escolhe a palavra-chave com melhor score
 - Em caso de empate, escolhe aleatoriamente
 
-## 📋 Tópicos de Desenvolvimento
+## Tópicos de Desenvolvimento
 
 ### Tópico 1: Normalização de Texto
 - [x] Função dedicada para limpar e normalizar entradas
