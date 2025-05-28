@@ -14,7 +14,7 @@ import java.util.Arrays;
 /**
  * Chatbot interativo com sistema de aprendizado dinâmico.
  * 
- * Este chatbot permite que usuários ensinem novos conhecimentos através
+ * Este chatbot permite que usuários ensinem novos conhecimentos por meio
  * de palavras-chave e respostas, criando uma base de conhecimento personalizada.
  * Inclui funcionalidades de edição, remoção e listagem do conhecimento adquirido.
  * 
@@ -44,7 +44,7 @@ public class Chatbot{
 	/**
 	 * Inicialização do chatbot.
 	 * 
-	 * Solicita o nome do usuário e mostra a fucionalidade do bot.
+	 * Solicita o nome do usuário e mostra a funcionalidade do bot.
 	 * Executa o loop para iniciar a conversa.
 	 * 
 	 * @see #consoleAjuda();
@@ -52,7 +52,7 @@ public class Chatbot{
 	 */
 	public void iniciar() {
 		// Solicita o nome do usuário
-		System.out.println("=== CHABOT ===");
+		System.out.println("=== CHATBOT ===");
 		System.out.print("Digite seu nome: ");
 		nomeUsuario = sc.nextLine();
 		
@@ -151,7 +151,7 @@ public class Chatbot{
 						"Estou confuso, posso jurar que eu tinha conhecimento suficiente na minha memória!",
 						"Ainda não sei sobre nada, me ensine!"
 				};
-				System.out.printf("Chabot: %s%n", respostas[rnd.nextInt(respostas.length)]);
+				System.out.printf("Chatbot: %s%n", respostas[rnd.nextInt(respostas.length)]);
 			}
 			return true;
 		}
@@ -172,13 +172,17 @@ public class Chatbot{
 	}
 
 	/**
-	 * Gerar resposta de acordo com a mensagem do usuário.
+	 * Gera resposta contextual baseada na mensagem do usuário.
 	 * 
-	 * Mensagens dinâmicas para cada mensagem que o usuário envia.
+	 * Utiliza sistema de pontuação para encontrar a melhor correspondência
+	 * entre palavras da mensagem e palavras-chave do conhecimento.
+	 * Se nenhuma correspondência for encontrada, retorna resposta padrão
+	 * incentivando o usuário a ensinar sobre o assunto.
 	 * 
-	 * @param mensagem mensagem digitada pelo usuário
-	 * @return resposta dinâmica
+	 * @param mensagem texto normalizado enviado pelo usuário
+	 * @return resposta gerada pelo chatbot
 	 * @see #extrairPalavras(String)
+	 * @see #tratarMensagem(String)
 	 */
 	private String gerarResposta(String mensagem) {
 		// Saudação do usuário
@@ -222,7 +226,7 @@ public class Chatbot{
 		}
 		
 		if (maiorScore > 0) {
-			// Coleta palavra dinãmicamente 
+			// Coleta palavra dinamicamente 
 			String palavraEscolhida = palavrasComMelhorScore.get(
 					rnd.nextInt(palavrasComMelhorScore.size())
 			);
@@ -357,17 +361,13 @@ public class Chatbot{
 	}
 
 	/**
-	 * Gera resposta contextual baseada na mensagem do usuário.
+	 * Extrai palavras relevantes removendo stop words.
 	 * 
-	 * Utiliza sistema de pontuação para encontrar a melhor correspondência
-	 * entre palavras da mensagem e palavras-chave do conhecimento.
-	 * Se nenhuma correspondência for encontrada, retorna resposta padrão
-	 * incentivando o usuário a ensinar sobre o assunto.
+	 * Remove palavras comuns (artigos, preposições, etc.) e palavras vazias,
+	 * mantendo apenas termos significativos para análise de contexto.
 	 * 
-	 * @param mensagem texto normalizado enviado pelo usuário
-	 * @return resposta gerada pelo chatbot
-	 * @see #extrairPalavras(String)
-	 * @see #tratarMensagem(String)
+	 * @param mensagem texto normalizado para extração
+	 * @return lista de palavras relevantes
 	 */
 	private List<String> extrairPalavras(String mensagem){
 		// Lista de palavras genericas
