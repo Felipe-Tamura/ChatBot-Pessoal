@@ -38,14 +38,15 @@ public class Chatbot{
 			System.out.printf("%n%s: ", nomeUsuario);
 			String entrada = sc.nextLine().trim();
 
-			if (!entrada.isEmpty()) System.out.printf("%nChatbot: %s", processarMensagem(entrada));
+			if (!entrada.isEmpty()) processarMensagem(entrada);
 		}
 	}
 
-	private String processarMensagem(String entrada) {
+	private void processarMensagem(String entrada) {
 		String msg = tratarMensagem(entrada);
-		if (verificarComandosEspeciais(msg)) return "";
-		return gerarResposta(msg);
+		if (!verificarComandosEspeciais(msg)) {
+			System.out.printf("%nChatbot: %s", gerarResposta(msg));
+		}
 	}
 
 	private boolean verificarComandosEspeciais(String mensagem) {
@@ -174,9 +175,9 @@ public class Chatbot{
 	}
 
 	private void ensinarChat() {
-		System.out.print("Me diga a plavar-chave para o assunto principal, por favor (ex: tempo): ");
+		System.out.print("Chatbot: Me diga a plavar-chave para o assunto principal, por favor (ex: tempo): ");
 		String palavraChave = tratarMensagem(sc.nextLine().toLowerCase().trim());
-		System.out.print("Me diga agora como responder a esta palavra chave, por favor: ");
+		System.out.print("Chatbot: Me diga agora como responder a esta palavra chave, por favor: ");
 		String respostaConhecimento = tratarMensagem(sc.nextLine());
 
 		List<String> possiveisChaves = extrairPalavras(palavraChave);
@@ -265,7 +266,7 @@ public class Chatbot{
 	private boolean listarConhecimento() {
 		if (conhecimento.isEmpty()) return false;
 		System.out.printf(
-				"Eu possuo %d palavra(s)-chave(s) no meu conhecimento atualmente.%n",
+				"Chatbot: Eu possuo %d palavra(s)-chave(s) no meu conhecimento atualmente.%n",
 				conhecimento.size()
 		);
 		int temp = 1;
