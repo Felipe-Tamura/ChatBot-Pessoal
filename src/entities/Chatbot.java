@@ -38,14 +38,15 @@ public class Chatbot{
 			System.out.printf("%n%s: ", nomeUsuario);
 			String entrada = sc.nextLine().trim();
 
-			if (!entrada.isEmpty()) System.out.printf("%nChatbot: %s", processarMensagem(entrada));
+			if (!entrada.isEmpty()) processarMensagem(entrada);
 		}
 	}
 
-	private String processarMensagem(String entrada) {
+	private void processarMensagem(String entrada) {
 		String msg = tratarMensagem(entrada);
-		if (verificarComandosEspeciais(msg)) return "";
-		return gerarResposta(msg);
+		if (!verificarComandosEspeciais(msg)) {
+			System.out.printf("%nChatbot: %s", gerarResposta(msg));
+		}
 	}
 
 	private boolean verificarComandosEspeciais(String mensagem) {
@@ -72,7 +73,15 @@ public class Chatbot{
 		}
 		
 		if (mensagem.contains("listar") || mensagem.contains("conhecimento")) {
-			listarConhecimento();
+			if (!listarConhecimento()) {
+				String[] respostas = {
+						"Meu conhecimento está vazio no momento, poderia me ensinar algo novo?",
+						"Minha memória está vazia, considere me passar um pouco de conhecimento, por favor!",
+						"Estou confuso, posso jurar que eu tinha conhecimento suficiente na minha memória!",
+						"Ainda não sei sobre nada, me ensine!"
+				};
+				System.out.printf("Chabot: %s%n", respostas[rnd.nextInt(respostas.length)]);
+			}
 			return true;
 		}
 		
@@ -166,9 +175,9 @@ public class Chatbot{
 	}
 
 	private void ensinarChat() {
-		System.out.print("Me diga a plavar-chave para o assunto principal, por favor (ex: tempo): ");
+		System.out.print("Chatbot: Me diga a plavar-chave para o assunto principal, por favor (ex: tempo): ");
 		String palavraChave = tratarMensagem(sc.nextLine().toLowerCase().trim());
-		System.out.print("Me diga agora como responder a esta palavra chave, por favor: ");
+		System.out.print("Chatbot: Me diga agora como responder a esta palavra chave, por favor: ");
 		String respostaConhecimento = tratarMensagem(sc.nextLine());
 
 		List<String> possiveisChaves = extrairPalavras(palavraChave);
@@ -254,19 +263,12 @@ public class Chatbot{
 		return aux;
 	}
 
-	private void listarConhecimento() {
-		if (conhecimento.isEmpty()) {
-			String[] respostas = {
-					"Meu conhecimento está vazio no momento, poderia me ensinar algo novo?",
-					"Minha memória está vazia, considere me passar um pouco de conhecimento, por favor!",
-					"Estou confuso, posso jurar que eu tinha conhecimento suficiente na minha memória!",
-					"Ainda não sei sobre nada, me ensine!"
-			};
-			
-			System.out.printf("Chabot: %s%n", respostas[rnd.nextInt(respostas.length)]);
-		}
-		
-		System.out.printf("Eu possuo %d palavra(s)-chave(s) no meu conhecimento atualmente.%n", conhecimento.size());
+	private boolean listarConhecimento() {
+		if (conhecimento.isEmpty()) return false;
+		System.out.printf(
+				"Chatbot: Eu possuo %d palavra(s)-chave(s) no meu conhecimento atualmente.%n",
+				conhecimento.size()
+		);
 		int temp = 1;
 		for (String palavraChave: conhecimento.keySet()) {
 			System.out.printf("%d. %s - (%d resposta(s)).%n",
@@ -276,9 +278,50 @@ public class Chatbot{
 			);
 			temp++;
 		}
+		return true;
 	}
 	
 	private void editarConhecimento() {
-		
+		// Listar conhecimento que o bot possui
+		if (listarConhecimento()) {
+			System.out.print(
+					"\nChatbot: Qual conhecimento você deseja editar? Digite a palavra chave: "
+			);
+			String palavraChave = tratarMensagem(sc.nextLine());
+			int temp = 1;
+			if (conhecimento.containsKey(palavraChave)) {
+				//for (String palavra: conhecimento.keySet()) {
+					//if (palavra.equals(palavraChave)) {
+						for (String lista: conhecimento.get(palavraChave)) {
+							System.out.println("\n" + temp + ". " + lista);
+							temp++;
+						}
+						System.out.print(
+								"\nChatbot: Qual dessas palavras você deseja alterar? Digite o número: "
+						);
+						
+						int indexFrase = sc.nextInt() - 1;
+						sc.nextLine();
+						if (indexFrase < 0 || indexFrase > (conhecimento.get(palavraChave).size() - 1)) {
+							System.out.println("Chatbot: Palavra não encontrada!");
+							return;
+						}
+						
+						System.out.printf("Chatbot: Resposta escolhida: %s", conhecimento.get(palavraChave).get(indexFrase));
+						System.out.println("\nChatbot: Agora me diga a resposta editada: ");
+						String respostaEditada = tratarMensagem(sc.nextLine());
+						conhecimento.get(palavraChave).remove(indexFrase);
+						conhecimento.get(palavraChave).add(respostaEditada);
+						System.out.println("Chatbot: Resposta editada com sucesso!");
+						//break;
+					//}
+				//}
+			}else {
+				System.out.println("Chatbot: palavra-chave não encontrada");
+			}
+			
+		}else {
+			System.out.println("Chatbot: Conhecimento vazio!");
+		}
 	}
 }
