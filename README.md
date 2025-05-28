@@ -143,8 +143,8 @@ O algoritmo calcula um score baseado na correspondência de palavras-chave:
 
 ### Tópico 4: Experiência do Usuário
 - [x] Comando para listar conhecimento (`listar/conhecimento`)
-- [ ] Sistema para editar conhecimento (`editar`) 
-- [ ] Sistema para remover conhecimento (`esquecer/remover`)
+- [x] Sistema para editar conhecimento (`editar`) 
+- [x] Sistema para remover conhecimento (`esquecer/remover`)
 - [ ] Melhorar feedback de aprendizado (mostrar quantidade de respostas)
 - [ ] Sistema de contexto básico (lembrar última palavra-chave)
 
