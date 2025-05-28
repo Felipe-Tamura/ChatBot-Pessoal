@@ -314,20 +314,13 @@ public class Chatbot{
 	 * 
 	 * @param entrada texto original a ser normalizado
 	 * @return texto normalizado em minúsculas sem acentos
+	 * @see #criarMapaAcentos()
 	 */
 	private String tratarMensagem(String entrada) {
 		// Padrão das mensagens
 		String res = entrada.toLowerCase();
-
-		// Lista de acentos
-		Map<String, List<String>> acentos = new HashMap<>() {{
-			put("c", Arrays.asList("ç"));
-			put("a", Arrays.asList("ã", "â", "á", "à"));
-			put("i", Arrays.asList("í", "ì"));
-			put("u", Arrays.asList("ú", "ù"));
-			put("e", Arrays.asList("ê", "é", "è"));
-			put("o", Arrays.asList("õ", "ô", "ó", "ò"));
-		}};
+		
+		Map<String, List<String>> acentos = criarMapaAcentos();
 		
 		// Modifica acentos por letras
 		for (Map.Entry<String, List<String>> acento: acentos.entrySet()) {
@@ -341,6 +334,26 @@ public class Chatbot{
 		res = res.replaceAll("[?!]", "");
 
 		return res;
+	}
+	
+	/**
+	 * Criação de mapa de acentos para tratamento na mensagem
+	 * 
+	 * @return lista de acentos
+	 */
+	private Map<String, List<String>> criarMapaAcentos(){
+		// Cria lista de acentos
+		Map<String, List<String>> acentos = new HashMap<>();
+		
+		// Adiciona acentos mais usados
+		acentos.put("c", Arrays.asList("ç"));
+		acentos.put("a", Arrays.asList("ã", "â", "á", "à"));
+		acentos.put("i", Arrays.asList("í", "ì"));
+		acentos.put("u", Arrays.asList("ú", "ù"));
+		acentos.put("e", Arrays.asList("ê", "é", "è"));
+		acentos.put("o", Arrays.asList("õ", "ô", "ó", "ò"));
+		
+		return acentos;
 	}
 
 	/**
