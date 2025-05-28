@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.InputMismatchException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -31,6 +32,7 @@ public class Chatbot{
 		nomeUsuario = sc.nextLine();
 		consoleAjuda();
 		executarLoop();
+		sc.close();
 	}
 
 	private void executarLoop() {
@@ -300,17 +302,20 @@ public class Chatbot{
 					temp++;
 				}
 				System.out.print(
-						"\nChatbot: Qual dessas palavras você deseja alterar? Digite o número: "
+						"\nChatbot: Qual dessas respostas você deseja alterar? Digite o número: "
 				);
 				
 				int indexFrase = sc.nextInt() - 1;
 				sc.nextLine();
 				if (indexFrase < 0 || indexFrase > (conhecimento.get(palavraChave).size() - 1)) {
-					System.out.println("Chatbot: Palavra não encontrada!");
+					System.out.println("Chatbot: Resposta não encontrada!");
 					return;
 				}
 				
-				System.out.printf("Chatbot: Resposta escolhida: %s", conhecimento.get(palavraChave).get(indexFrase));
+				System.out.printf(
+						"Chatbot: Resposta escolhida: %s",
+						conhecimento.get(palavraChave).get(indexFrase)
+				);
 				System.out.println("\nChatbot: Agora me diga a resposta editada: ");
 				String respostaEditada = tratarMensagem(sc.nextLine());
 				conhecimento.get(palavraChave).remove(indexFrase);
@@ -326,6 +331,90 @@ public class Chatbot{
 	}
 
 	private void removerConhecimento() {
-		
+		try {
+			if (listarConhecimento()) {
+				System.out.println("\nChatbot: Você quer:"
+						+ "\n1. Remover uma palavra-chave inteira."
+						+ "\n2. Remover apenas uma resposta específica."
+						+ "\n0. Sair."
+				);
+				int decisao = sc.nextInt();
+				sc.nextLine();
+				String palavraChave;
+				int temp = 1;
+				switch (decisao) {
+					case 1:
+						System.out.print("Chatbot: Digite uma da(s) palavra(s)-chave(s) da lista: ");
+						palavraChave = tratarMensagem(sc.nextLine());
+						if (conhecimento.containsKey(palavraChave)) {
+							System.out.println("Tem certeza que deseja excluir essa palavra chave? [S]im [N]ão");
+							String respostaTemp = tratarMensagem(sc.nextLine());
+							if (respostaTemp.isEmpty() || respostaTemp.contains("sim") || respostaTemp.contains("s")) {
+								conhecimento.remove(palavraChave);
+								System.out.println("\nChatbot: Palavra-chave removida com sucesso!");
+							}else if (respostaTemp.contains("não") || respostaTemp.contains("n")) {
+								System.out.println("\nChatbot: Nada foi removido! Retornando...");
+							}else {
+								System.out.println("\nChatbot: Resposta inválida! Retornando...");
+							}
+						}else {
+							System.out.println("Chatbot: palavra-chave não encontrada");
+						}
+						break;
+						
+					case 2:
+						System.out.print("Chatbot: Digite uma da(s) palavra(s)-chave(s) da lista: ");
+						palavraChave = tratarMensagem(sc.nextLine());
+						if (conhecimento.containsKey(palavraChave)) {
+							for (String lista: conhecimento.get(palavraChave)) {
+								System.out.println("\n" + temp + ". " + lista);
+								temp++;
+							}
+							
+							System.out.print("\nChatbot: Digite o número da resposta: ");
+							int indexFrase = sc.nextInt() - 1;
+							sc.nextLine();
+							
+							// Verificando se o número que o usuário digitou é válido para a lista de conhecimento
+							if (indexFrase < 0 || indexFrase > (conhecimento.get(palavraChave).size() - 1)) {
+								System.out.println("Chatbot: Resposta não encontrada!");
+								return;
+							}
+							
+							// Verificando se a palavra-chave irá ficar vazia
+							if ((conhecimento.get(palavraChave).size() - 1) == 0) {
+								System.out.println(
+										"Chatbot: Ao remover essa resposta, você estará removendo a palavra-chave do conhecimento"
+										+ "\nDeseja continuar? [S]im [N]ão"
+								);
+								String respostaTemp = tratarMensagem(sc.nextLine());
+								if (respostaTemp.isEmpty() || respostaTemp.contains("sim") || respostaTemp.contains("s")) {
+									conhecimento.remove(palavraChave);
+									System.out.println("\nChatbot: Palavra-chave removida do conhecimento!");
+									return;
+								}else if (respostaTemp.contains("não") || respostaTemp.contains("n")) {
+									System.out.println("\nChatbot: Nada foi removido! Retornando...");
+								}else {
+									System.out.println("\nChatbot: Resposta inválida! Retornando...");
+								}
+							}
+							
+							System.out.printf("Chatbot: Resposta escolhida: %s", conhecimento.get(palavraChave).get(indexFrase));
+							conhecimento.get(palavraChave).remove(indexFrase);
+							System.out.println("\nChatbot: Resposta removida com sucesso!");
+							
+						}else {
+							System.out.println("Chatbot: palavra-chave não encontrada");
+						}
+						break;
+						
+					default:
+						break;
+				}
+			}
+		} catch (InputMismatchException e) {
+			System.out.println("Chatbot: Você digitou uma decisão incorreta, tente novamente!");
+			sc.nextLine();
+		}
 	}
 }
