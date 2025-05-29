@@ -260,6 +260,7 @@ public class Chatbot{
 				"- esquecer/remover: remove o conhecimento do bot"
 		};
 
+		// Imprime as funcionalidades do bot
 		for (String item: funcionalidades) {
 			System.out.println(item);
 		}
