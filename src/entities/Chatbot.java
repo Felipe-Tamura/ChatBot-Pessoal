@@ -294,6 +294,12 @@ public class Chatbot{
 		System.out.print("Chatbot: Me diga agora como responder a esta palavra chave, por favor: ");
 		String respostaConhecimento = tratarMensagem(sc.nextLine());
 
+		// Verifica dados existentes no input
+		if (palavraChave.isEmpty() || respostaConhecimento.isEmpty()) {
+			System.out.println("Chatbot: A palavra chave/resposta não foi digitada, tente novamente!");
+			return;
+		}
+
 		// Extrai palavras chave da mensagem
 		List<String> possiveisChave = extrairPalavras(palavraChave);
 		
