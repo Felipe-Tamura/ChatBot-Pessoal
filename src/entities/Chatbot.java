@@ -295,8 +295,13 @@ public class Chatbot{
 		String respostaConhecimento = tratarMensagem(sc.nextLine());
 
 		// Verifica dados existentes no input
-		if (palavraChave.isEmpty() || respostaConhecimento.isEmpty()) {
-			System.out.println("Chatbot: A palavra chave/resposta não foi digitada, tente novamente!");
+		if (palavraChave.isEmpty()) {
+			System.out.println("Chatbot: Palavra-chave não pode estar vazia!");
+			return;
+		}
+		
+		if (respostaConhecimento.isEmpty()) {
+			System.out.println("Chatbot: Resposta não pode estar vaiza");
 			return;
 		}
 
@@ -348,6 +353,15 @@ public class Chatbot{
 		System.out.printf("Chatbot: %s%n", respostas[rnd.nextInt(respostas.length)]);
 	}
 
+	/**
+	 * 
+	 * @param palavra
+	 * @return
+	 */
+	private boolean validarPalavraChave(String palavra) {
+		
+	}
+	
 	/**
 	 * Normaliza texto removendo acentos e pontuação.
 	 * 
