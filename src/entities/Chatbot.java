@@ -362,26 +362,54 @@ public class Chatbot{
 	 * @see validarNumero()
 	 */
 	private boolean validarPalavra(String palavra) {
+		// Valida palavra vazia
 		if (palavra.isEmpty() || palavra.trim().isEmpty()) {
 			System.out.println("Chatbot: Encontrei dados vazios, não posso aceitar conhecimento vazio!");
 			return true;
 		}
 		
+		// Valida palavra curta
 		if (palavra.length() < 2) {
 			System.out.println("Chatbot: Palavra muito curta para o conhecimento!");
 			return true;
 		}
 		
+		// Valida digito
 		if (palavra.matches("\\d+")) {
 			try {
 				return validarNumero(Integer.parseInt(palavra));
-			}catch (InputMismatchException e) {
+			}catch (InputMismatchException e) { // Captura erro de entrada no input
 				System.out.println("Entrada inválida: " + e.getMessage());
 			}
 		}
 		
+		// Retorno padrão
 		return false;
 	}
+	
+	/**
+	 * Verifica dígitos para conhecimento do bot
+	 * 
+	 * Evita dígito genéricos e sequênciais
+	 * 
+	 * @param palavra - texto original a ser validado
+	 * @return decisão de números válidos
+	 */
+	private boolean validarNumero(int numero) {
+		// Verifica idade
+		if (numero >= 1 && numero <= 120) {
+			return false;
+		}
+		
+		// Verifica ano
+		if (numero >= 1900 && numero <= 2100) {
+			return false;
+		}
+		
+		// Retorno padrão
+		return true;
+	}
+	
 	
 	/**
 	 * Normaliza texto removendo acentos e pontuação.
