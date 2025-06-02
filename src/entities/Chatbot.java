@@ -364,22 +364,26 @@ public class Chatbot{
 	private boolean validarPalavra(String palavra) {
 		// Valida palavra vazia
 		if (palavra.isEmpty() || palavra.trim().isEmpty()) {
-			System.out.println("Chatbot: Encontrei dados vazios, não posso aceitar conhecimento vazio!");
+			System.out.println("Chatbot: Encontrei dados vazios, não posso aceitar palavra-chave vazia!");
 			return true;
 		}
 		
 		// Valida palavra curta
 		if (palavra.length() < 2) {
-			System.out.println("Chatbot: Palavra muito curta para o conhecimento!");
+			System.out.println("Chatbot: Palavra-chave muito curta!");
 			return true;
 		}
 		
 		// Valida digito
 		if (palavra.matches("\\d+")) {
 			try {
-				return validarNumero(Integer.parseInt(palavra));
-			}catch (InputMismatchException e) { // Captura erro de entrada no input
-				System.out.println("Entrada inválida: " + e.getMessage());
+				return validarNumero(palavra);
+			}catch (InputMismatchException e) {
+				System.out.println("Chatbot: Entrada inválida: " + e.getMessage());
+				return true;
+			}catch (NumberFormatException e) {
+				System.out.println("Chatbot: Formato inválido: " + e.getMessage());
+				return true;
 			}
 		}
 		
@@ -395,7 +399,16 @@ public class Chatbot{
 	 * @param palavra - texto original a ser validado
 	 * @return decisão de números válidos
 	 */
-	private boolean validarNumero(int numero) {
+	private boolean validarNumero(String palavra) {
+		// Converte texto para número
+		int numero = Integer.parseInt(palavra);
+		// Separa digitos em lista
+		String[] digito = palavra.split("");
+		// Sequência e Repetição
+		boolean isRep = true;
+		boolean isSeqCre = false;
+		boolean isSeqDec = false;
+		
 		// Verifica idade
 		if (numero >= 1 && numero <= 120) {
 			return false;
@@ -405,7 +418,40 @@ public class Chatbot{
 		if (numero >= 1900 && numero <= 2100) {
 			return false;
 		}
+
+		// Verifica tamanho dos dígitos
+		if (palavra.length() > 5) {
+			return true;
+		}
 		
+		// Verifica digito sequencial crescente
+		for (int i = 0; i < palavra.length() - 1; i++) {
+			if ((Integer.parseInt(digito[i]) + 1) == Integer.parseInt(digito[i+1])) {
+				isSeqCre = true;
+			}
+		}
+		
+		// Verifica digito sequencial decrescente
+		for (int i = 0; i < palavra.length() - 1; i++) {
+			if ((Integer.parseInt(digito[i]) - 1) == Integer.parseInt(digito[i+1])) {
+				isSeqDec = true;
+			}
+		}
+		
+		// Verifica digito repetido
+		for (int i = 0; i < palavra.length(); i++) {
+			if (!digito[i].equals(digito[0])) {
+				isRep = false;
+			}
+		}
+		
+		
+		//Valida Sequência ou Repetição
+		if (isRep || isSeqCre || isSeqDec) {
+			System.out.println("Chatbot: Valores sequênciais ou repetidos não posso aceitar como palavra chave!");
+			return true;
+		}
+
 		// Retorno padrão
 		return true;
 	}
