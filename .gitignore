@@ -5,6 +5,7 @@
 .settings/
 .classpath
 .project
+src/teste
 
 # Log files
 *.log
