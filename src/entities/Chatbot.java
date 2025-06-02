@@ -295,13 +295,12 @@ public class Chatbot{
 		String respostaConhecimento = tratarMensagem(sc.nextLine());
 
 		// Verifica dados existentes no input
-		if (palavraChave.isEmpty()) {
-			System.out.println("Chatbot: Palavra-chave não pode estar vazia!");
+		if (validarPalavra(palavraChave)) {
 			return;
 		}
 		
 		if (respostaConhecimento.isEmpty()) {
-			System.out.println("Chatbot: Resposta não pode estar vaiza");
+			System.out.println("Chatbot: Não posso aceitar conhecimento vazio!");
 			return;
 		}
 
@@ -354,12 +353,34 @@ public class Chatbot{
 	}
 
 	/**
+	 * Valida palavra para conhecimento do bot
 	 * 
-	 * @param palavra
-	 * @return
+	 * Evita dados vazios, palavras muito curtas e valida digitos numéricos
+	 * 
+	 * @param palavra - texto original a ser validado
+	 * @return validação final com base nos critérios
+	 * @see validarNumero()
 	 */
-	private boolean validarPalavraChave(String palavra) {
+	private boolean validarPalavra(String palavra) {
+		if (palavra.isEmpty() || palavra.trim().isEmpty()) {
+			System.out.println("Chatbot: Encontrei dados vazios, não posso aceitar conhecimento vazio!");
+			return true;
+		}
 		
+		if (palavra.length() < 2) {
+			System.out.println("Chatbot: Palavra muito curta para o conhecimento!");
+			return true;
+		}
+		
+		if (palavra.matches("\\d+")) {
+			try {
+				return validarNumero(Integer.parseInt(palavra));
+			}catch (InputMismatchException e) {
+				System.out.println("Entrada inválida: " + e.getMessage());
+			}
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -368,7 +389,7 @@ public class Chatbot{
 	 * Converte para minúsculas, substitui caracteres acentuados
 	 * pelos equivalentes sem acento e remove pontuação específica.
 	 * 
-	 * @param entrada texto original a ser normalizado
+	 * @param entrada - texto original a ser normalizado
 	 * @return texto normalizado em minúsculas sem acentos
 	 * @see #criarMapaAcentos()
 	 */
