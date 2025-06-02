@@ -210,7 +210,7 @@ public class Chatbot{
 		int maiorScore = 0;
 		List<String> palavrasComMelhorScore = new ArrayList<>();
 		
-		for (String palavraChave: conhecimento.keySet()) { // Iterando palavras chaves
+		for (String palavraChave: conhecimento.keySet()) { // Iterando palavras chave
 			// Verifica lista de palavras da mensagem com palavras chave
 			int score = palavrasMensagem.contains(palavraChave) ? 1 : 0;
 			// Adiciona palavra com melhor pontuação
@@ -260,6 +260,7 @@ public class Chatbot{
 				"- esquecer/remover: remove o conhecimento do bot"
 		};
 
+		// Imprime as funcionalidades do bot
 		for (String item: funcionalidades) {
 			System.out.println(item);
 		}
@@ -293,10 +294,47 @@ public class Chatbot{
 		System.out.print("Chatbot: Me diga agora como responder a esta palavra chave, por favor: ");
 		String respostaConhecimento = tratarMensagem(sc.nextLine());
 
-		// Extrai palavras chaves da mensagem
-		List<String> possiveisChaves = extrairPalavras(palavraChave);
+		// Verifica dados existentes no input
+		if (palavraChave.isEmpty() || respostaConhecimento.isEmpty()) {
+			System.out.println("Chatbot: A palavra chave/resposta não foi digitada, tente novamente!");
+			return;
+		}
+
+		// Extrai palavras chave da mensagem
+		List<String> possiveisChave = extrairPalavras(palavraChave);
+		
+		System.out.printf("Chatbot: Encontrei %d palavras-chave%n", possiveisChave.size()); // Informa a quantidade de palavras-chave
+
+		List<String> palavraNova = new ArrayList<>();
+		List<String> palavraExistente = new ArrayList<>();
+
+		// Verifica palavras-chave no conhecimento e adiciona a lista
+		for (String msg: possiveisChave) {
+			if (conhecimento.containsKey(msg)) {
+				palavraExistente.add(msg);
+			}else {
+				palavraNova.add(msg);
+			}
+		}
+		
+		// Retorna resposta com base no cenário atual
+		if (!palavraNova.isEmpty() && palavraExistente.isEmpty()) {
+			System.out.println("Chatbot: Todas as palavras são novas");
+			palavraNova.forEach(palavra -> System.out.printf("'%s'%n",palavra)); // Expressão lambda
+		}else if (!palavraNova.isEmpty() && !palavraExistente.isEmpty()) {
+			System.out.println("Chatbot: Algumas já existem (expandindo conhecimento");
+			System.out.println("Chatbot: Novas palavras: ");
+			palavraNova.forEach(palavra -> System.out.printf("'%s'%n",palavra));
+			System.out.println("Chatbot: Palavras existentes: ");
+			palavraExistente.forEach(palavra -> System.out.printf("'%s'%n", palavra));
+		}else if (palavraNova.isEmpty() && !palavraExistente.isEmpty()) {
+			System.out.println("Chatbot: Todas já existem (apenas adicionando respostas");
+			System.out.println("Chatbot: Palavras existentes: ");
+			palavraExistente.forEach(palavra -> System.out.printf("'%s'%n", palavra));
+		}
+	
 		// Adiciona respostas à palavra chave
-		for (String chave: possiveisChaves) {
+		for (String chave: possiveisChave) {
 			conhecimento.computeIfAbsent(chave, k -> new ArrayList<>()).add(respostaConhecimento);
 		}
 		
@@ -377,6 +415,8 @@ public class Chatbot{
 				"ainda", "mas", "ou", "se", "me", "te", "nos", "lhe"
 		));
 		String[] temp = mensagem.split(" "); // Transforma mensagem em lista
+		
+		// Cria lista auxiliar
 		List<String> aux = new ArrayList<>();
 		// Adiciona palavras relevantes ao auxiliar
 		for (String item: temp) {
@@ -384,6 +424,7 @@ public class Chatbot{
 				aux.add(item);
 			}
 		}
+		
 		return aux;
 	}
 
