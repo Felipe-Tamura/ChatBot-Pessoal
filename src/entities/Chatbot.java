@@ -289,9 +289,9 @@ public class Chatbot{
 	 */
 	private void ensinarChat() {
 		// Solicita palavra chave e resposta
-		System.out.print("Chatbot: Me diga a palavra-chave para o assunto principal, por favor (ex: tempo): ");
+		System.out.print("Chatbot: Palavra-Chave (ex: tempo de hoje): ");
 		String palavraChave = tratarMensagem(sc.nextLine().toLowerCase().trim());
-		System.out.print("Chatbot: Me diga agora como responder a esta palavra chave, por favor: ");
+		System.out.print("Chatbot: Resposta da palavra-chave: ");
 		String respostaConhecimento = tratarMensagem(sc.nextLine());
 
 		// Verifica dados existentes no input
@@ -311,45 +311,70 @@ public class Chatbot{
 
 		List<String> palavraNova = new ArrayList<>();
 		List<String> palavraExistente = new ArrayList<>();
+		boolean respostaNova = false;
+		boolean respostaExistente = false;
+		List<String> respostaDuplicada = new ArrayList<>();
 
 		// Verifica palavras-chave no conhecimento e adiciona a lista
 		for (String msg: possiveisChave) {
 			if (conhecimento.containsKey(msg)) {
 				palavraExistente.add(msg);
+				// Verificando se resposta já existe na base do conhecimento do bot
+				if (conhecimento.get(msg).contains(respostaConhecimento)) {
+					respostaExistente = true;
+					respostaDuplicada.add(msg);
+				}else {
+					respostaNova = true;
+				}
 			}else {
 				palavraNova.add(msg);
+				respostaNova = true;
 			}
 		}
 		
 		// Retorna resposta com base no cenário atual
 		if (!palavraNova.isEmpty() && palavraExistente.isEmpty()) {
-			System.out.println("Chatbot: Todas as palavras são novas");
+			System.out.println("Chatbot: Novas palavras: ");
 			palavraNova.forEach(palavra -> System.out.printf("'%s'%n",palavra)); // Expressão lambda
 		}else if (!palavraNova.isEmpty() && !palavraExistente.isEmpty()) {
-			System.out.println("Chatbot: Algumas já existem (expandindo conhecimento");
+			System.out.println("Chatbot: Algumas já existem (expandindo conhecimento)");
 			System.out.println("Chatbot: Novas palavras: ");
 			palavraNova.forEach(palavra -> System.out.printf("'%s'%n",palavra));
+
 			System.out.println("Chatbot: Palavras existentes: ");
 			palavraExistente.forEach(palavra -> System.out.printf("'%s'%n", palavra));
+
+			if (respostaExistente && !respostaDuplicada.isEmpty()) {
+				System.out.printf("Chatbot: A resposta '%s' já existe nas seguintes palavras-chave:%n", respostaConhecimento);
+				respostaDuplicada.forEach(palavra -> System.out.printf("'%s'%n", palavra));
+			}
 		}else if (palavraNova.isEmpty() && !palavraExistente.isEmpty()) {
-			System.out.println("Chatbot: Todas já existem (apenas adicionando respostas");
 			System.out.println("Chatbot: Palavras existentes: ");
 			palavraExistente.forEach(palavra -> System.out.printf("'%s'%n", palavra));
+
+			if (respostaExistente && !respostaDuplicada.isEmpty()) {
+				System.out.printf("Chatbot: A resposta '%s' já existe nas seguintes palavras-chave:%n", respostaConhecimento);
+				respostaDuplicada.forEach(palavra -> System.out.printf("'%s'%n", palavra));
+			}
 		}
 	
 		// Adiciona respostas à palavra chave
 		for (String chave: possiveisChave) {
-			conhecimento.computeIfAbsent(chave, k -> new ArrayList<>()).add(respostaConhecimento);
+			if (respostaNova && !respostaDuplicada.contains(chave)) {
+				conhecimento.computeIfAbsent(chave, k -> new ArrayList<>()).add(respostaConhecimento);
+			}
 		}
 		
-		String[] respostas = { // Lista dinâmica de resposta
-				String.format("Obrigado, agora eu sei um pouco sobre '%s'", palavraChave),
-				String.format("Perfeito! Agora posso conversar sobre '%s' com você", palavraChave),
-				String.format("Eba! Aprendi algo novo sobre '%s', muito obrigado!", palavraChave),
-				String.format("Que legal! Agora '%s' faz parte do meu conhecimento", palavraChave)
-		};
+		if (respostaNova) {
+			String[] respostas = { // Lista dinâmica de resposta
+					String.format("Obrigado, agora eu sei um pouco sobre '%s'", palavraChave),
+					String.format("Perfeito! Agora posso conversar sobre '%s' com você", palavraChave),
+					String.format("Eba! Aprendi algo novo sobre '%s', muito obrigado!", palavraChave),
+					String.format("Que legal! Agora '%s' faz parte do meu conhecimento", palavraChave)
+			};
 
-		System.out.printf("Chatbot: %s%n", respostas[rnd.nextInt(respostas.length)]);
+			System.out.printf("Chatbot: %s%n", respostas[rnd.nextInt(respostas.length)]);
+		}
 	}
 
 	/**
@@ -364,7 +389,9 @@ public class Chatbot{
 	private boolean validarPalavra(String palavra) {
 		// Valida palavra vazia
 		if (palavra.isEmpty() || palavra.trim().isEmpty()) {
-			System.out.println("Chatbot: Encontrei dados vazios, não posso aceitar palavra-chave vazia!");
+			System.out.println(
+					"Chatbot: Encontrei dados vazios, não posso aceitar palavra-chave vazia!"
+					);
 			return true;
 		}
 		
@@ -448,7 +475,9 @@ public class Chatbot{
 		
 		//Valida Sequência ou Repetição
 		if (isRep || isSeqCre || isSeqDec) {
-			System.out.println("Chatbot: Valores sequênciais ou repetidos não posso aceitar como palavra chave!");
+			System.out.println(
+					"Chatbot: Valores sequênciais ou repetidos não posso aceitar como palavra chave!"
+					);
 			return true;
 		}
 
@@ -646,10 +675,14 @@ public class Chatbot{
 						palavraChave = tratarMensagem(sc.nextLine());
 						// Verifica existência da palavra chave no conhecimento
 						if (conhecimento.containsKey(palavraChave)) {
-							System.out.println("Tem certeza que deseja excluir essa palavra chave? [S]im [N]ão");
+							System.out.println(
+									"Tem certeza que deseja excluir essa palavra chave? [S]im [N]ão"
+									);
 							String respostaTemp = tratarMensagem(sc.nextLine());
 							// Decisão do usuário
-							if (respostaTemp.isEmpty() || respostaTemp.contains("sim") || respostaTemp.contains("s")) {
+							if (respostaTemp.isEmpty() ||
+									respostaTemp.contains("sim") ||
+									respostaTemp.contains("s")) {
 								// Remove palavra chave do conhecimento
 								conhecimento.remove(palavraChave);
 								System.out.println("\nChatbot: Palavra-chave removida com sucesso!");
@@ -687,24 +720,33 @@ public class Chatbot{
 							// Verifica se palavra-chave irá ficar vazia
 							if ((conhecimento.get(palavraChave).size() - 1) == 0) {
 								System.out.println(
-										"Chatbot: Ao remover essa resposta, você estará removendo a palavra-chave do conhecimento"
+										"Chatbot: Ao remover essa resposta, você estará removendo "
+										+ "a palavra-chave do conhecimento"
 										+ "\nDeseja continuar? [S]im [N]ão"
 								);
 								String respostaTemp = tratarMensagem(sc.nextLine());
 								
 								// Decisão do usuário
-								if (respostaTemp.isEmpty() || respostaTemp.contains("sim") || respostaTemp.contains("s")) {
+								if (respostaTemp.isEmpty() ||
+										respostaTemp.contains("sim") ||
+										respostaTemp.contains("s")) {
 									conhecimento.remove(palavraChave); // Remove palavra chave do conhecimento
-									System.out.println("\nChatbot: Palavra-chave removida do conhecimento!");
+									System.out.println(
+											"\nChatbot: Palavra-chave removida do conhecimento!"
+											);
 									return;
-								}else if (respostaTemp.contains("não") || respostaTemp.contains("n")) {
+								}else if (respostaTemp.contains("não") ||
+										respostaTemp.contains("n")) {
 									System.out.println("\nChatbot: Nada foi removido! Retornando...");
 								}else {
 									System.out.println("\nChatbot: Resposta inválida! Retornando...");
 								}
 							}
 							
-							System.out.printf("Chatbot: Resposta escolhida: %s", conhecimento.get(palavraChave).get(indexFrase));
+							System.out.printf(
+									"Chatbot: Resposta escolhida: %s",
+									conhecimento.get(palavraChave).get(indexFrase)
+									);
 							conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta da palavra chave
 							System.out.println("\nChatbot: Resposta removida com sucesso!");
 							
