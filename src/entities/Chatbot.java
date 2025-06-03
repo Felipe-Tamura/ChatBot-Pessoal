@@ -34,7 +34,7 @@ public class Chatbot{
 	 * Construtor da classe.
 	 */
 	public Chatbot() {
-		// Inicializaão dos métodos
+		// Inicialização dos métodos
 		sc = new Scanner(System.in);
 		rnd = new Random();
 		conhecimento = new HashMap<>();
@@ -599,49 +599,54 @@ public class Chatbot{
 	 * @see #listarConhecimento()
 	 */
 	private void editarConhecimento() {
-		// Verifica conhecimento do bot
-		if (listarConhecimento()) {
-			System.out.print(
-					"\nChatbot: Qual conhecimento você deseja editar? Digite a palavra chave: "
-			);
-			String palavraChave = tratarMensagem(sc.nextLine());
-			int temp = 1; // Variável temporária
-			
-			// Verifica palavra chave existente no conhecimento
-			if (conhecimento.containsKey(palavraChave)) {
-				// Lista resposta do conhecimento
-				for (String lista: conhecimento.get(palavraChave)) {
-					System.out.println("\n" + temp + ". " + lista);
-					temp++;
-				}
+		try {
+			// Verifica conhecimento do bot
+			if (listarConhecimento()) {
 				System.out.print(
-						"\nChatbot: Qual dessas respostas você deseja alterar? Digite o número: "
+						"\nChatbot: Qual conhecimento você deseja editar? Digite a palavra chave: "
 				);
+				String palavraChave = tratarMensagem(sc.nextLine());
+				int temp = 1; // Variável temporária
 				
-				int indexFrase = sc.nextInt() - 1;
-				sc.nextLine();
-				
-				// Verifica resposta válida
-				if (indexFrase < 0 || indexFrase > (conhecimento.get(palavraChave).size() - 1)) {
-					System.out.println("Chatbot: Resposta não encontrada!");
-					return;
+				// Verifica palavra chave existente no conhecimento
+				if (conhecimento.containsKey(palavraChave)) {
+					// Lista resposta do conhecimento
+					for (String lista: conhecimento.get(palavraChave)) {
+						System.out.println("\n" + temp + ". " + lista);
+						temp++;
+					}
+					System.out.print(
+							"\nChatbot: Qual dessas respostas você deseja alterar? Digite o número: "
+					);
+					
+					int indexFrase = sc.nextInt() - 1;
+					sc.nextLine();
+					
+					// Verifica resposta válida
+					if (indexFrase < 0 || indexFrase > (conhecimento.get(palavraChave).size() - 1)) {
+						System.out.println("Chatbot: Resposta não encontrada!");
+						return;
+					}
+					
+					System.out.printf(
+							"Chatbot: Resposta escolhida: %s",
+							conhecimento.get(palavraChave).get(indexFrase)
+					);
+					System.out.println("\nChatbot: Agora me diga a resposta editada: ");
+					String respostaEditada = tratarMensagem(sc.nextLine());
+					conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta antiga
+					conhecimento.get(palavraChave).add(respostaEditada); // Adiciona resposta nova
+					System.out.println("Chatbot: Resposta editada com sucesso!");
+				}else {
+					System.out.println("Chatbot: palavra-chave não encontrada");
 				}
 				
-				System.out.printf(
-						"Chatbot: Resposta escolhida: %s",
-						conhecimento.get(palavraChave).get(indexFrase)
-				);
-				System.out.println("\nChatbot: Agora me diga a resposta editada: ");
-				String respostaEditada = tratarMensagem(sc.nextLine());
-				conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta antiga
-				conhecimento.get(palavraChave).add(respostaEditada); // Adiciona resposta nova
-				System.out.println("Chatbot: Resposta editada com sucesso!");
 			}else {
-				System.out.println("Chatbot: palavra-chave não encontrada");
+				System.out.println("Chatbot: Conhecimento vazio!");
 			}
-			
-		}else {
-			System.out.println("Chatbot: Conhecimento vazio!");
+		} catch (InputMismatchException e) { // Trata input de número com texto
+			System.out.printf("Chatbot: Algo deu errado: %s.%nTente novamente!%n", e.getMessage());
+			sc.nextLine(); // Limpa o buffer
 		}
 	}
 
@@ -760,7 +765,7 @@ public class Chatbot{
 				}
 			}
 		} catch (InputMismatchException e) { // Trata input de número com texto
-			System.out.println("Chatbot: Você digitou uma decisão incorreta, tente novamente!");
+			System.out.printf("Chatbot: Você digitou uma decisão incorreta e gerou o erro %s.%nTente novamente!%n", e.getMessage());
 			sc.nextLine(); // Limpa o buffer
 		}
 	}
