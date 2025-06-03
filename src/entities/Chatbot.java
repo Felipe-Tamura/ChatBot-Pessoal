@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.InputMismatchException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -769,4 +770,5 @@ public class Chatbot{
 			sc.nextLine(); // Limpa o buffer
 		}
 	}
+	
 }
