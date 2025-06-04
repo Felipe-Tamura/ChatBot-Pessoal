@@ -12,8 +12,10 @@ import java.util.InputMismatchException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.Properties;
@@ -866,6 +868,42 @@ public class Chatbot{
  	 * 
  	 */
  	private void carregarConhecimento() {
+ 		File arquivo = new File(CAMINHO_CONHECIMENTO);
  		
+ 		if (!arquivo.exists()) {
+ 			System.out.println("Chatbot: Meu conhecimento está vazio, considere me ensinar umas coisinhas!");
+ 			return;
+ 		}
+ 		
+ 		try {
+ 			String jsonContent = lerArquivo(arquivo);
+ 			if (!jsonContent.trim().isEmpty()) {
+ 				parseJson(jsonContent);
+ 			}
+ 		}catch (IOException e) {
+ 			System.out.println("Chatbot: Erro ao carregar conhecimento: " + e.getMessage());
+ 		}
+ 	}
+ 		
+ 	private String lerArquivo(File arquivo) throws IOException {
+ 		StringBuilder content = new StringBuilder();
+ 		
+ 		try (BufferedReader reader = new BufferedReader(new FileReader(arquivo))){
+ 			String linha;
+ 			while ((linha = reader.readLine()) != null) {
+ 				content.append(linha).append("\n");
+ 			}
+ 		}
+ 		
+ 		return content.toString();
+ 	}
+ 	
+ 	private void parseJson(String jsonContent) {
+ 		// Remove quebras de linha e espaços extras
+ 		String json = jsonContent.replaceAll("\\s+", " ").trim();
+ 		
+ 		json = json.substring(1, json.length() - 1);
+ 		
+ 		System.out.println(json);
  	}
 }
