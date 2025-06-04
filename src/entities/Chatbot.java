@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.Random;
 import java.util.Map;
+import java.util.Properties;
 import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,11 @@ import java.util.InputMismatchException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * Chatbot interativo com sistema de aprendizado dinâmico.
@@ -25,12 +31,15 @@ import java.util.Arrays;
  */
 public class Chatbot{
 
+	private String CAMINHO_CONHECIMENTO = "src/data/conhecimento.json";
 	private Scanner sc;
 	private Random rnd;
 	private String nomeUsuario;
 	private boolean executando;
 	private Map<String, List<String>> conhecimento;
 
+	
+	
 	/**
 	 * Construtor da classe.
 	 */
@@ -375,6 +384,7 @@ public class Chatbot{
 			};
 
 			System.out.printf("Chatbot: %s%n", respostas[rnd.nextInt(respostas.length)]);
+			salvarConhecimento();
 		}
 	}
 
@@ -485,8 +495,7 @@ public class Chatbot{
 		// Retorno padrão
 		return true;
 	}
-	
-	
+
 	/**
 	 * Normaliza texto removendo acentos e pontuação.
 	 * 
@@ -598,6 +607,7 @@ public class Chatbot{
 	 * Verifica qual a palavra-chave e qual a resposta que o usuário quer editar.
 	 * 
 	 * @see #listarConhecimento()
+	 * @see #salvarConhecimento()
 	 */
 	private void editarConhecimento() {
 		try {
@@ -638,6 +648,7 @@ public class Chatbot{
 					conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta antiga
 					conhecimento.get(palavraChave).add(respostaEditada); // Adiciona resposta nova
 					System.out.println("Chatbot: Resposta editada com sucesso!");
+					salvarConhecimento();
 				}else {
 					System.out.println("Chatbot: palavra-chave não encontrada");
 				}
@@ -740,6 +751,7 @@ public class Chatbot{
 									System.out.println(
 											"\nChatbot: Palavra-chave removida do conhecimento!"
 											);
+									salvarConhecimento();
 									return;
 								}else if (respostaTemp.contains("não") ||
 										respostaTemp.contains("n")) {
@@ -755,7 +767,7 @@ public class Chatbot{
 									);
 							conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta da palavra chave
 							System.out.println("\nChatbot: Resposta removida com sucesso!");
-							
+							salvarConhecimento();
 						}else {
 							System.out.println("Chatbot: palavra-chave não encontrada");
 						}
@@ -771,4 +783,77 @@ public class Chatbot{
 		}
 	}
 	
+	/**
+	 * Verifica diretorio existente
+	 * 
+	 * Instancia o caminho com File e verifica se ele existe, caso não exista ele cria o caminho
+	 */
+	private void verificarDiretorio() {
+		// Instancia do arquivo
+		File arquivo = new File(CAMINHO_CONHECIMENTO);
+		// Instancia do diretorio
+		File diretorio = arquivo.getParentFile();
+		
+		// Verifica diretorio existente
+		if (!diretorio.exists()) {
+			diretorio.mkdirs();
+		}
+	}
+	
+	/**
+	 * Salva o conhecimento do chatbot.
+	 * 
+	 * O arquivo padrão do conhecimento é JSON. Realiza configuração para o formato
+	 * JSON da base de conhecimento do chatbot
+	 */
+ 	private void salvarConhecimento() {
+ 		verificarDiretorio(); // Verifica diretorio antes de salvar o arquivo
+		StringBuilder json = new StringBuilder();
+		
+		// Inicio do arquivo
+		json.append("{");
+
+		int temp = 1;
+		// Itera sobre cada palavra-chave e suas respectivas respostas
+		for (String con: conhecimento.keySet()) {
+
+			// Adiciona a palavrachave
+			json.append("\n\"" + con + "\": [");
+			
+			// Verifica se palavra-chave contém apenas 1 resposta
+			if (conhecimento.get(con).size() == 1) {
+				// Adiciona resposta sem vírgula para o JSON
+				json.append("\"" + conhecimento.get(con).get(0) + "\"");
+			}else {
+				// Itera sobre cada resposta da palavra-chave menos a última resposta
+				for (int i = 0; i < conhecimento.get(con).size() - 1; i++) {
+					// Adiciona resposta com vírgula para o JSON
+					json.append("\"" + conhecimento.get(con).get(i) + "\",");
+				}
+				// Adiciona a última resposta da palavra-chave
+				json.append("\"" + conhecimento.get(con).get(conhecimento.get(con).size() - 1) + "\"");
+			}
+
+			// Verifica quantidade de palavra chave no conhecimento
+			if (temp < conhecimento.size()){
+				// Adiciona final da resposta para o JSON com vírgula
+				json.append("],");
+			}else {
+				// Adiciona final da resposta para o JSON sem vírgula
+				json.append("]");
+			}
+
+			temp++;
+		}
+		
+		// Final do arquivo
+		json.append("\n}");
+		
+		// Escrevendo no arquivo
+		try (FileWriter writer = new FileWriter(CAMINHO_CONHECIMENTO)){
+			writer.write(json.toString());
+		}catch (IOException e) {
+			System.out.println("Chatbot: Erro ao salvar: " + e.getMessage());
+		}
+	}
 }
