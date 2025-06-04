@@ -49,6 +49,7 @@ public class Chatbot{
 		rnd = new Random();
 		conhecimento = new HashMap<>();
 		executando = true;
+		carregarConhecimento();
 	}
 
 	/**
@@ -856,4 +857,15 @@ public class Chatbot{
 			System.out.println("Chatbot: Erro ao salvar: " + e.getMessage());
 		}
 	}
+
+ 	/**
+ 	 * Carrega conhecimento do arquivo JSON
+ 	 * 
+ 	 * Verifica a existencia do arquivo com o conhecimento base, caso contrário inicia com
+ 	 * conhecimento vazio.
+ 	 * 
+ 	 */
+ 	private void carregarConhecimento() {
+ 		
+ 	}
 }
