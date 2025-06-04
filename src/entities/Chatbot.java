@@ -607,6 +607,7 @@ public class Chatbot{
 	 * Verifica qual a palavra-chave e qual a resposta que o usuário quer editar.
 	 * 
 	 * @see #listarConhecimento()
+	 * @see #salvarConhecimento()
 	 */
 	private void editarConhecimento() {
 		try {
@@ -647,6 +648,7 @@ public class Chatbot{
 					conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta antiga
 					conhecimento.get(palavraChave).add(respostaEditada); // Adiciona resposta nova
 					System.out.println("Chatbot: Resposta editada com sucesso!");
+					salvarConhecimento();
 				}else {
 					System.out.println("Chatbot: palavra-chave não encontrada");
 				}
@@ -749,6 +751,7 @@ public class Chatbot{
 									System.out.println(
 											"\nChatbot: Palavra-chave removida do conhecimento!"
 											);
+									salvarConhecimento();
 									return;
 								}else if (respostaTemp.contains("não") ||
 										respostaTemp.contains("n")) {
@@ -764,7 +767,7 @@ public class Chatbot{
 									);
 							conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta da palavra chave
 							System.out.println("\nChatbot: Resposta removida com sucesso!");
-							
+							salvarConhecimento();
 						}else {
 							System.out.println("Chatbot: palavra-chave não encontrada");
 						}
