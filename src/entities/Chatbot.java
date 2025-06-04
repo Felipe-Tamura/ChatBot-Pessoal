@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.Random;
 import java.util.Map;
+import java.util.Properties;
 import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,11 @@ import java.util.InputMismatchException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * Chatbot interativo com sistema de aprendizado dinâmico.
@@ -25,12 +31,15 @@ import java.util.Arrays;
  */
 public class Chatbot{
 
+	private String CAMINHO_CONHECIMENTO = "src/data/conhecimento.json";
 	private Scanner sc;
 	private Random rnd;
 	private String nomeUsuario;
 	private boolean executando;
 	private Map<String, List<String>> conhecimento;
 
+	
+	
 	/**
 	 * Construtor da classe.
 	 */
@@ -772,12 +781,30 @@ public class Chatbot{
 	}
 	
 	/**
+	 * Verifica diretorio existente
+	 * 
+	 * Instancia o caminho com File e verifica se ele existe, caso não exista ele cria o caminho
+	 */
+	private void verificarDiretorio() {
+		// Instancia do arquivo
+		File arquivo = new File(CAMINHO_CONHECIMENTO);
+		// Instancia do diretorio
+		File diretorio = arquivo.getParentFile();
+		
+		// Verifica diretorio existente
+		if (!diretorio.exists()) {
+			diretorio.mkdirs();
+		}
+	}
+	
+	/**
 	 * Salva o conhecimento do chatbot.
 	 * 
 	 * O arquivo padrão do conhecimento é JSON. Realiza configuração para o formato
 	 * JSON da base de conhecimento do chatbot
 	 */
-	private void salvarConhecimento() {
+ 	private void salvarConhecimento() {
+ 		verificarDiretorio(); // Verifica diretorio antes de salvar o arquivo
 		StringBuilder json = new StringBuilder();
 		
 		// Inicio do arquivo
@@ -818,5 +845,12 @@ public class Chatbot{
 		
 		// Final do arquivo
 		json.append("\n}");
+		
+		// Escrevendo no arquivo
+		try (FileWriter writer = new FileWriter(CAMINHO_CONHECIMENTO)){
+			writer.write(json.toString());
+		}catch (IOException e) {
+			System.out.println("Chatbot: Erro ao salvar: " + e.getMessage());
+		}
 	}
 }
