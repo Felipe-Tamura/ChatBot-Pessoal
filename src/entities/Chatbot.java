@@ -12,8 +12,10 @@ import java.util.InputMismatchException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.Properties;
@@ -49,6 +51,7 @@ public class Chatbot{
 		rnd = new Random();
 		conhecimento = new HashMap<>();
 		executando = true;
+		carregarConhecimento();
 	}
 
 	/**
@@ -856,4 +859,107 @@ public class Chatbot{
 			System.out.println("Chatbot: Erro ao salvar: " + e.getMessage());
 		}
 	}
+
+ 	/**
+ 	 * Carrega conhecimento do arquivo JSON
+ 	 * 
+ 	 * Verifica a existencia do arquivo com o conhecimento base, caso contrário inicia com
+ 	 * conhecimento vazio.
+ 	 * 
+ 	 */
+ 	private void carregarConhecimento() {
+ 		// Coleta o arquivo no caminho
+ 		File arquivo = new File(CAMINHO_CONHECIMENTO);
+ 		
+ 		// Verifica se o arquivo existe
+ 		if (!arquivo.exists()) {
+ 			System.out.println("Chatbot: Arquivo de conhecimento vazio, conhecimento iniciando do zero!");
+ 			return;
+ 		}
+ 		
+ 		try {
+ 			// Coleta os dados do arquivo
+ 			String jsonContent = lerArquivo(arquivo);
+ 			// Verifica se os dados não estão vazios
+ 			if (!jsonContent.trim().isEmpty()) {
+ 				// Analisa o conteúdo
+ 				analiseJson(jsonContent);
+ 			}
+ 		}catch (IOException e) {
+ 			System.out.println("Chatbot: Erro ao carregar conhecimento: " + e.getMessage());
+ 		}
+ 	}
+ 		
+ 	/**
+ 	 * Realiza leitura do arquivo JSON
+ 	 * 
+ 	 * Adiciona todo o conteúdo do arquivo em um StringBuilder
+ 	 * 
+ 	 * @param arquivo - para leitura e tratamento dos dados
+ 	 * @return String em formato JSON
+ 	 * @throws IOException - Erro na leitura
+ 	 */
+ 	private String lerArquivo(File arquivo) throws IOException {
+ 		StringBuilder content = new StringBuilder();
+ 		
+ 		try (BufferedReader reader = new BufferedReader(new FileReader(arquivo))){ // Tenta ler o arquivo
+ 			String linha;
+ 			// Verifica se a linha não está vazia
+ 			while ((linha = reader.readLine()) != null) {
+ 				// Adiciona o conteúdo da linha
+ 				content.append(linha).append("\n");
+ 			}
+ 		}catch (IOException e) {
+ 			System.out.println("Chatbot: Não consegui ler o arquivo: " + e.getMessage());
+ 		}
+ 		
+ 		return content.toString();
+ 	}
+ 	
+ 	/**
+ 	 * Analise de arquivo JSON
+ 	 * 
+ 	 * Analisa e adiciona o conteúdo do JSON no conhecimento do bot
+ 	 * 
+ 	 * @param jsonContent - String em formato JSON
+ 	 */
+ 	private void analiseJson(String jsonContent) {
+ 		// Remove quebras de linha e espaços extras
+ 		String json = jsonContent.replaceAll("\\s+", " ").trim();
+ 		// Retira 2 caracteres inicial e 3 final
+ 		json = json.substring(2, json.length() - 3);
+ 		
+ 		// Separa JSON pela string delimitadora
+ 		String[] chaves = json.split("], ");
+ 		for(int i = 0; i < chaves.length; i++) {
+ 			// Coleta cada chave da lista
+ 			String chave = chaves[i];
+
+ 			// Adiciona novamente o colchete retirado anteriormente
+			chave += "]";
+ 			
+			// Obtém inicio e fim da chave
+ 			int inicioChave = chave.indexOf("\"") + 1;
+ 			int fimChave = chave.indexOf("\"", inicioChave);
+ 			// Obtém palavra-chave padrão
+ 			String chaveDefault = chave.substring(inicioChave, fimChave);
+ 			
+ 			// Obtém o inicio e fim da resposta
+ 			int inicioResposta = chave.indexOf("[") + 1;
+ 			int fimResposta = chave.indexOf("]");
+ 			// Obtém respostas padrão da palavra-chave
+ 			String[] respostaDefault = chave.substring(inicioResposta, fimResposta).split("\", \"");
+ 			// Itera sobre as respostas padrão
+ 			List<String> listaRespostas = new ArrayList<>();
+ 			for (String resp: respostaDefault) {
+ 				// Itera sobre as respostas retirando vírgula e aspas
+ 				for (String r: resp.split(",\"")) {
+ 					// Adiciona na lista retirando as aspas restantes
+ 					listaRespostas.add(r.replaceAll("\"", ""));
+ 				}
+ 			}
+ 			
+ 			// Adiciona no conhecimento
+ 			conhecimento.put(chaveDefault, listaRespostas);
+ 		} 	}
 }
