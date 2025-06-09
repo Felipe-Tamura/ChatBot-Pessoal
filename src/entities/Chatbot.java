@@ -1,24 +1,12 @@
 package entities;
 
 import java.util.Scanner;
-import java.util.Set;
 import java.util.Random;
 import java.util.Map;
-import java.util.Properties;
 import java.util.List;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.InputMismatchException;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.InputStream;
-import java.util.Properties;
 
 /**
  * Chatbot interativo com sistema de aprendizado dinâmico.
@@ -33,14 +21,15 @@ import java.util.Properties;
  */
 public class Chatbot{
 
-	private String CAMINHO_CONHECIMENTO = "src/data/conhecimento.json";
 	private Scanner sc;
 	private Random rnd;
 	private String nomeUsuario;
 	private boolean executando;
+	private FileManager fileManager = new FileManager();
+	private MessageManager messageManager = new MessageManager();
 	private Map<String, List<String>> conhecimento;
 
-	
+
 	
 	/**
 	 * Construtor da classe.
@@ -51,7 +40,9 @@ public class Chatbot{
 		rnd = new Random();
 		conhecimento = new HashMap<>();
 		executando = true;
-		carregarConhecimento();
+		for (String teste: fileManager.carregarConhecimento().keySet()) {
+			conhecimento.put(teste, fileManager.carregarConhecimento().get(teste));
+		}
 	}
 
 	/**
@@ -63,7 +54,7 @@ public class Chatbot{
 	 * @see #consoleAjuda();
 	 * @see #executarLoop();
 	 */
-	public void iniciar() {
+	public void init() {
 		// Solicita o nome do usuário
 		System.out.println("=== CHATBOT ===");
 		System.out.print("Digite seu nome: ");
@@ -107,7 +98,7 @@ public class Chatbot{
 	 * @see #gerarResposta(String)
 	 */
 	private void processarMensagem(String entrada) {
-		String msg = tratarMensagem(entrada);
+		String msg = messageManager.tratarMensagem(entrada);
 		// Verifica comando especial
 		if (!verificarComandosEspeciais(msg)) {
 			// Gera resposta com base no conhecimento do bot
@@ -218,7 +209,7 @@ public class Chatbot{
 		}
 
 		// Cria lista de palavras da mensagem
-		List<String> palavrasMensagem = extrairPalavras(mensagem);
+		List<String> palavrasMensagem = messageManager.extrairPalavras(mensagem);
 
 		int maiorScore = 0;
 		List<String> palavrasComMelhorScore = new ArrayList<>();
@@ -303,12 +294,12 @@ public class Chatbot{
 	private void ensinarChat() {
 		// Solicita palavra chave e resposta
 		System.out.print("Chatbot: Palavra-Chave (ex: tempo de hoje): ");
-		String palavraChave = tratarMensagem(sc.nextLine().toLowerCase().trim());
+		String palavraChave = messageManager.tratarMensagem(sc.nextLine().toLowerCase().trim());
 		System.out.print("Chatbot: Resposta da palavra-chave: ");
-		String respostaConhecimento = tratarMensagem(sc.nextLine());
+		String respostaConhecimento = messageManager.tratarMensagem(sc.nextLine());
 
 		// Verifica dados existentes no input
-		if (validarPalavra(palavraChave)) {
+		if (messageManager.validarPalavra(palavraChave)) {
 			return;
 		}
 		
@@ -318,7 +309,7 @@ public class Chatbot{
 		}
 
 		// Extrai palavras chave da mensagem
-		List<String> possiveisChave = extrairPalavras(palavraChave);
+		List<String> possiveisChave = messageManager.extrairPalavras(palavraChave);
 		
 		System.out.printf("Chatbot: Encontrei %d palavras-chave%n", possiveisChave.size()); // Informa a quantidade de palavras-chave
 
@@ -387,196 +378,8 @@ public class Chatbot{
 			};
 
 			System.out.printf("Chatbot: %s%n", respostas[rnd.nextInt(respostas.length)]);
-			salvarConhecimento();
+			fileManager.salvarConhecimento(conhecimento);
 		}
-	}
-
-	/**
-	 * Valida palavra para conhecimento do bot
-	 * 
-	 * Evita dados vazios, palavras muito curtas e valida digitos numéricos
-	 * 
-	 * @param palavra - texto original a ser validado
-	 * @return validação final com base nos critérios
-	 * @see validarNumero()
-	 */
-	private boolean validarPalavra(String palavra) {
-		// Valida palavra vazia
-		if (palavra.isEmpty() || palavra.trim().isEmpty()) {
-			System.out.println(
-					"Chatbot: Encontrei dados vazios, não posso aceitar palavra-chave vazia!"
-					);
-			return true;
-		}
-		
-		// Valida palavra curta
-		if (palavra.length() < 2) {
-			System.out.println("Chatbot: Palavra-chave muito curta!");
-			return true;
-		}
-		
-		// Valida digito
-		if (palavra.matches("\\d+")) {
-			try {
-				return validarNumero(palavra);
-			}catch (InputMismatchException e) {
-				System.out.println("Chatbot: Entrada inválida: " + e.getMessage());
-				return true;
-			}catch (NumberFormatException e) {
-				System.out.println("Chatbot: Formato inválido: " + e.getMessage());
-				return true;
-			}
-		}
-		
-		// Retorno padrão
-		return false;
-	}
-	
-	/**
-	 * Verifica dígitos para conhecimento do bot
-	 * 
-	 * Evita dígito genéricos e sequênciais
-	 * 
-	 * @param palavra - texto original a ser validado
-	 * @return decisão de números válidos
-	 */
-	private boolean validarNumero(String palavra) {
-		// Converte texto para número
-		int numero = Integer.parseInt(palavra);
-		// Separa digitos em lista
-		String[] digito = palavra.split("");
-		// Sequência e Repetição
-		boolean isRep = true;
-		boolean isSeqCre = false;
-		boolean isSeqDec = false;
-		
-		// Verifica idade
-		if (numero >= 1 && numero <= 120) {
-			return false;
-		}
-		
-		// Verifica ano
-		if (numero >= 1900 && numero <= 2100) {
-			return false;
-		}
-
-		// Verifica tamanho dos dígitos
-		if (palavra.length() > 5) {
-			return true;
-		}
-		
-		// Verifica digito sequencial crescente
-		for (int i = 0; i < palavra.length() - 1; i++) {
-			if ((Integer.parseInt(digito[i]) + 1) == Integer.parseInt(digito[i+1])) {
-				isSeqCre = true;
-			}
-		}
-		
-		// Verifica digito sequencial decrescente
-		for (int i = 0; i < palavra.length() - 1; i++) {
-			if ((Integer.parseInt(digito[i]) - 1) == Integer.parseInt(digito[i+1])) {
-				isSeqDec = true;
-			}
-		}
-		
-		// Verifica digito repetido
-		for (int i = 0; i < palavra.length(); i++) {
-			if (!digito[i].equals(digito[0])) {
-				isRep = false;
-			}
-		}
-		
-		
-		//Valida Sequência ou Repetição
-		if (isRep || isSeqCre || isSeqDec) {
-			System.out.println(
-					"Chatbot: Valores sequênciais ou repetidos não posso aceitar como palavra chave!"
-					);
-			return true;
-		}
-
-		// Retorno padrão
-		return true;
-	}
-
-	/**
-	 * Normaliza texto removendo acentos e pontuação.
-	 * 
-	 * Converte para minúsculas, substitui caracteres acentuados
-	 * pelos equivalentes sem acento e remove pontuação específica.
-	 * 
-	 * @param entrada - texto original a ser normalizado
-	 * @return texto normalizado em minúsculas sem acentos
-	 * @see #criarMapaAcentos()
-	 */
-	private String tratarMensagem(String entrada) {
-		// Padrão das mensagens
-		String res = entrada.toLowerCase();
-		
-		Map<String, List<String>> acentos = criarMapaAcentos();
-		
-		// Modifica acentos por letras
-		for (Map.Entry<String, List<String>> acento: acentos.entrySet()) {
-			String letraBase = acento.getKey();
-			for (String letra: acento.getValue()) {
-				res = res.replace(letra, letraBase);
-			}
-		}
-		
-		// Retira pontuação
-		res = res.replaceAll("[?!]", "");
-
-		return res;
-	}
-	
-	/**
-	 * Criação de mapa de acentos para tratamento na mensagem
-	 * 
-	 * @return lista de acentos
-	 */
-	private Map<String, List<String>> criarMapaAcentos(){
-		// Cria lista de acentos
-		Map<String, List<String>> acentos = new HashMap<>();
-		
-		// Adiciona acentos mais usados
-		acentos.put("c", Arrays.asList("ç"));
-		acentos.put("a", Arrays.asList("ã", "â", "á", "à"));
-		acentos.put("i", Arrays.asList("í", "ì"));
-		acentos.put("u", Arrays.asList("ú", "ù"));
-		acentos.put("e", Arrays.asList("ê", "é", "è"));
-		acentos.put("o", Arrays.asList("õ", "ô", "ó", "ò"));
-		
-		return acentos;
-	}
-
-	/**
-	 * Extrai palavras relevantes removendo stop words.
-	 * 
-	 * Remove palavras comuns (artigos, preposições, etc.) e palavras vazias,
-	 * mantendo apenas termos significativos para análise de contexto.
-	 * 
-	 * @param mensagem texto normalizado para extração
-	 * @return lista de palavras relevantes
-	 */
-	private List<String> extrairPalavras(String mensagem){
-		// Lista de palavras genericas
-		Set<String> STOP_WORDS = new HashSet<>(
-				Arrays.asList( "o", "a", "os", "as", "de", "da", "do", "para", "com", "em", "por",
-				"que", "um", "uma", "é", "foi", "ser", "ter", "como", "mais", "muito", "bem", "já",
-				"ainda", "mas", "ou", "se", "me", "te", "nos", "lhe"
-		));
-		String[] temp = mensagem.split(" "); // Transforma mensagem em lista
-		
-		// Cria lista auxiliar
-		List<String> aux = new ArrayList<>();
-		// Adiciona palavras relevantes ao auxiliar
-		for (String item: temp) {
-			if (!STOP_WORDS.contains(item) && !item.isEmpty()) {
-				aux.add(item);
-			}
-		}
-		
-		return aux;
 	}
 
 	/**
@@ -619,7 +422,7 @@ public class Chatbot{
 				System.out.print(
 						"\nChatbot: Qual conhecimento você deseja editar? Digite a palavra chave: "
 				);
-				String palavraChave = tratarMensagem(sc.nextLine());
+				String palavraChave = messageManager.tratarMensagem(sc.nextLine());
 				int temp = 1; // Variável temporária
 				
 				// Verifica palavra chave existente no conhecimento
@@ -647,11 +450,11 @@ public class Chatbot{
 							conhecimento.get(palavraChave).get(indexFrase)
 					);
 					System.out.println("\nChatbot: Agora me diga a resposta editada: ");
-					String respostaEditada = tratarMensagem(sc.nextLine());
+					String respostaEditada = messageManager.tratarMensagem(sc.nextLine());
 					conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta antiga
 					conhecimento.get(palavraChave).add(respostaEditada); // Adiciona resposta nova
 					System.out.println("Chatbot: Resposta editada com sucesso!");
-					salvarConhecimento();
+					fileManager.salvarConhecimento(conhecimento);
 				}else {
 					System.out.println("Chatbot: palavra-chave não encontrada");
 				}
@@ -692,13 +495,13 @@ public class Chatbot{
 				switch (decisao) {
 					case 1: // Remove palavra chave do conhecimento
 						System.out.print("Chatbot: Digite uma da(s) palavra(s)-chave(s) da lista: ");
-						palavraChave = tratarMensagem(sc.nextLine());
+						palavraChave = messageManager.tratarMensagem(sc.nextLine());
 						// Verifica existência da palavra chave no conhecimento
 						if (conhecimento.containsKey(palavraChave)) {
 							System.out.println(
 									"Tem certeza que deseja excluir essa palavra chave? [S]im [N]ão"
 									);
-							String respostaTemp = tratarMensagem(sc.nextLine());
+							String respostaTemp = messageManager.tratarMensagem(sc.nextLine());
 							// Decisão do usuário
 							if (respostaTemp.isEmpty() ||
 									respostaTemp.contains("sim") ||
@@ -718,7 +521,7 @@ public class Chatbot{
 						
 					case 2: // Remove respostas do conhecimento
 						System.out.print("Chatbot: Digite uma da(s) palavra(s)-chave(s) da lista: ");
-						palavraChave = tratarMensagem(sc.nextLine());
+						palavraChave = messageManager.tratarMensagem(sc.nextLine());
 						// Verifica existência da palavra chave no conhecimento
 						if (conhecimento.containsKey(palavraChave)) {
 							// Lista respostas da palavra chave
@@ -744,7 +547,7 @@ public class Chatbot{
 										+ "a palavra-chave do conhecimento"
 										+ "\nDeseja continuar? [S]im [N]ão"
 								);
-								String respostaTemp = tratarMensagem(sc.nextLine());
+								String respostaTemp = messageManager.tratarMensagem(sc.nextLine());
 								
 								// Decisão do usuário
 								if (respostaTemp.isEmpty() ||
@@ -754,7 +557,7 @@ public class Chatbot{
 									System.out.println(
 											"\nChatbot: Palavra-chave removida do conhecimento!"
 											);
-									salvarConhecimento();
+									fileManager.salvarConhecimento(conhecimento);
 									return;
 								}else if (respostaTemp.contains("não") ||
 										respostaTemp.contains("n")) {
@@ -770,7 +573,7 @@ public class Chatbot{
 									);
 							conhecimento.get(palavraChave).remove(indexFrase); // Remove resposta da palavra chave
 							System.out.println("\nChatbot: Resposta removida com sucesso!");
-							salvarConhecimento();
+							fileManager.salvarConhecimento(conhecimento);
 						}else {
 							System.out.println("Chatbot: palavra-chave não encontrada");
 						}
@@ -785,181 +588,4 @@ public class Chatbot{
 			sc.nextLine(); // Limpa o buffer
 		}
 	}
-	
-	/**
-	 * Verifica diretorio existente
-	 * 
-	 * Instancia o caminho com File e verifica se ele existe, caso não exista ele cria o caminho
-	 */
-	private void verificarDiretorio() {
-		// Instancia do arquivo
-		File arquivo = new File(CAMINHO_CONHECIMENTO);
-		// Instancia do diretorio
-		File diretorio = arquivo.getParentFile();
-		
-		// Verifica diretorio existente
-		if (!diretorio.exists()) {
-			diretorio.mkdirs();
-		}
-	}
-	
-	/**
-	 * Salva o conhecimento do chatbot.
-	 * 
-	 * O arquivo padrão do conhecimento é JSON. Realiza configuração para o formato
-	 * JSON da base de conhecimento do chatbot
-	 */
- 	private void salvarConhecimento() {
- 		verificarDiretorio(); // Verifica diretorio antes de salvar o arquivo
-		StringBuilder json = new StringBuilder();
-		
-		// Inicio do arquivo
-		json.append("{");
-
-		int temp = 1;
-		// Itera sobre cada palavra-chave e suas respectivas respostas
-		for (String con: conhecimento.keySet()) {
-
-			// Adiciona a palavrachave
-			json.append("\n\"" + con + "\": [");
-			
-			// Verifica se palavra-chave contém apenas 1 resposta
-			if (conhecimento.get(con).size() == 1) {
-				// Adiciona resposta sem vírgula para o JSON
-				json.append("\"" + conhecimento.get(con).get(0) + "\"");
-			}else {
-				// Itera sobre cada resposta da palavra-chave menos a última resposta
-				for (int i = 0; i < conhecimento.get(con).size() - 1; i++) {
-					// Adiciona resposta com vírgula para o JSON
-					json.append("\"" + conhecimento.get(con).get(i) + "\",");
-				}
-				// Adiciona a última resposta da palavra-chave
-				json.append("\"" + conhecimento.get(con).get(conhecimento.get(con).size() - 1) + "\"");
-			}
-
-			// Verifica quantidade de palavra chave no conhecimento
-			if (temp < conhecimento.size()){
-				// Adiciona final da resposta para o JSON com vírgula
-				json.append("],");
-			}else {
-				// Adiciona final da resposta para o JSON sem vírgula
-				json.append("]");
-			}
-
-			temp++;
-		}
-		
-		// Final do arquivo
-		json.append("\n}");
-		
-		// Escrevendo no arquivo
-		try (FileWriter writer = new FileWriter(CAMINHO_CONHECIMENTO)){
-			writer.write(json.toString());
-		}catch (IOException e) {
-			System.out.println("Chatbot: Erro ao salvar: " + e.getMessage());
-		}
-	}
-
- 	/**
- 	 * Carrega conhecimento do arquivo JSON
- 	 * 
- 	 * Verifica a existencia do arquivo com o conhecimento base, caso contrário inicia com
- 	 * conhecimento vazio.
- 	 * 
- 	 */
- 	private void carregarConhecimento() {
- 		// Coleta o arquivo no caminho
- 		File arquivo = new File(CAMINHO_CONHECIMENTO);
- 		
- 		// Verifica se o arquivo existe
- 		if (!arquivo.exists()) {
- 			System.out.println("Chatbot: Arquivo de conhecimento vazio, conhecimento iniciando do zero!");
- 			return;
- 		}
- 		
- 		try {
- 			// Coleta os dados do arquivo
- 			String jsonContent = lerArquivo(arquivo);
- 			// Verifica se os dados não estão vazios
- 			if (!jsonContent.trim().isEmpty()) {
- 				// Analisa o conteúdo
- 				analiseJson(jsonContent);
- 			}
- 		}catch (IOException e) {
- 			System.out.println("Chatbot: Erro ao carregar conhecimento: " + e.getMessage());
- 		}
- 	}
- 		
- 	/**
- 	 * Realiza leitura do arquivo JSON
- 	 * 
- 	 * Adiciona todo o conteúdo do arquivo em um StringBuilder
- 	 * 
- 	 * @param arquivo - para leitura e tratamento dos dados
- 	 * @return String em formato JSON
- 	 * @throws IOException - Erro na leitura
- 	 */
- 	private String lerArquivo(File arquivo) throws IOException {
- 		StringBuilder content = new StringBuilder();
- 		
- 		try (BufferedReader reader = new BufferedReader(new FileReader(arquivo))){ // Tenta ler o arquivo
- 			String linha;
- 			// Verifica se a linha não está vazia
- 			while ((linha = reader.readLine()) != null) {
- 				// Adiciona o conteúdo da linha
- 				content.append(linha).append("\n");
- 			}
- 		}catch (IOException e) {
- 			System.out.println("Chatbot: Não consegui ler o arquivo: " + e.getMessage());
- 		}
- 		
- 		return content.toString();
- 	}
- 	
- 	/**
- 	 * Analise de arquivo JSON
- 	 * 
- 	 * Analisa e adiciona o conteúdo do JSON no conhecimento do bot
- 	 * 
- 	 * @param jsonContent - String em formato JSON
- 	 */
- 	private void analiseJson(String jsonContent) {
- 		// Remove quebras de linha e espaços extras
- 		String json = jsonContent.replaceAll("\\s+", " ").trim();
- 		// Retira 2 caracteres inicial e 3 final
- 		json = json.substring(2, json.length() - 3);
- 		
- 		// Separa JSON pela string delimitadora
- 		String[] chaves = json.split("], ");
- 		for(int i = 0; i < chaves.length; i++) {
- 			// Coleta cada chave da lista
- 			String chave = chaves[i];
-
- 			// Adiciona novamente o colchete retirado anteriormente
-			chave += "]";
- 			
-			// Obtém inicio e fim da chave
- 			int inicioChave = chave.indexOf("\"") + 1;
- 			int fimChave = chave.indexOf("\"", inicioChave);
- 			// Obtém palavra-chave padrão
- 			String chaveDefault = chave.substring(inicioChave, fimChave);
- 			
- 			// Obtém o inicio e fim da resposta
- 			int inicioResposta = chave.indexOf("[") + 1;
- 			int fimResposta = chave.indexOf("]");
- 			// Obtém respostas padrão da palavra-chave
- 			String[] respostaDefault = chave.substring(inicioResposta, fimResposta).split("\", \"");
- 			// Itera sobre as respostas padrão
- 			List<String> listaRespostas = new ArrayList<>();
- 			for (String resp: respostaDefault) {
- 				// Itera sobre as respostas retirando vírgula e aspas
- 				for (String r: resp.split(",\"")) {
- 					// Adiciona na lista retirando as aspas restantes
- 					listaRespostas.add(r.replaceAll("\"", ""));
- 				}
- 			}
- 			
- 			// Adiciona no conhecimento
- 			conhecimento.put(chaveDefault, listaRespostas);
- 		} 	}
 }
