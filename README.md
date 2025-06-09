@@ -44,18 +44,19 @@ Um chatbot inteligente desenvolvido em Java que aprende dinamicamente através d
 
 1. **Clone o repositório**
    ```bash
-   git clone https://github.com/seu-usuario/chatbot-pessoal.git
-   cd chatbot-pessoal
+   git clone https://github.com/Felipe-Tamura/ChatBot-Pessoal.git
+   cd ChatBot-Pessoal
    ```
 
 2. **Compile o código**
    ```bash
-   javac -d . src/entities/Chatbot.java Main.java
+   mkdir bin
+   javac -d bin src/entities/Chatbot.java src/application/Program.java
    ```
 
 3. **Execute o programa**
    ```bash
-   java Main
+   java -cp bin application.Program
    ```
 
 ### Exemplo de uso
@@ -68,6 +69,8 @@ Digite seu nome: João
 - ensinar: ensina o chatbot algo novo
 - ajuda/help: mostra o menu de ajuda
 - listar/conhecimento: mostra a lista de conhecimento do bot
+- editar: edita o conhecimento do bot
+- esquecer/remover: remove o conhecimento do bot
 
 João: oi
 Chatbot: Olá, como vai João?
@@ -87,11 +90,13 @@ Chatbot: Futebol é um esporte muito popular no Brasil!
 chatbot-pessoal/
 ├── src/
 │   ├── entities/
-│   │   └── Chatbot.java    # Classe principal do chatbot
+│   │   └── Chatbot.java          # Classe principal do chatbot
+│   ├── data/
+│   │   └── conhecimento.java     # Arquivo de conhecimento do chatbot
 │   └── application/
-│       └── Program.java    # Classe principal para execução
-├── .gitignore             # Arquivos ignorados pelo Git
-└── README.md              # Este arquivo
+│       └── Program.java          # Classe principal para execução
+├── .gitignore                    # Arquivos ignorados pelo Git
+└── README.md                     # Este arquivo
 ```
 
 ## Como Funciona
@@ -114,63 +119,6 @@ O algoritmo calcula um score baseado na correspondência de palavras-chave:
 - Escolhe a palavra-chave com melhor score
 - Em caso de empate, escolhe aleatoriamente
 
-## Tópicos de Desenvolvimento
-
-### Tópico 1: Normalização de Texto
-- [x] Função dedicada para limpar e normalizar entradas
-- [x] Remoção de acentos e caracteres especiais  
-- [x] Conversão para lowercase
-- [x] Remoção de pontuação (!?)
-- [x] Divisão de frases em palavras individuais
-
-**Implementado em**: `tratarMensagem()` e `extrairPalavras()`
-
-### Tópico 2: Sistema de Correspondência  
-- [x] Busca por palavras individuais
-- [x] Sistema de pontuação para determinar melhor correspondência
-- [x] Tratamento de stop words (palavras irrelevantes)
-- [x] Seleção aleatória entre palavras com mesmo score
-
-**Implementado em**: `gerarResposta()` com sistema de scoring
-
-### Tópico 3: Estrutura de Dados
-- [x] Uso de palavras individuais como chaves
-- [x] Múltiplas respostas por palavra-chave
-- [x] HashMap para armazenamento eficiente
-- [x] Sistema de conhecimento expandível
-
-**Implementado em**: `Map<String, List<String>> conhecimento`
-
-### Tópico 4: Experiência do Usuário
-- [x] Comando para listar conhecimento (`listar/conhecimento`)
-- [x] Sistema para editar conhecimento (`editar`) 
-- [x] Sistema para remover conhecimento (`esquecer/remover`)
-- [ ] Melhorar feedback de aprendizado (mostrar quantidade de respostas)
-- [ ] Sistema de contexto básico (lembrar última palavra-chave)
-
-**Status**: Implementando sistema de edição de conhecimento
-
-### Tópico 5: Robustez
-- [ ] Validação rigorosa de inputs do usuário
-- [ ] Tratamento de casos onde entrada fica vazia após normalização
-- [ ] Prevenção de spam no aprendizado (limites, cooldown)
-- [ ] Tratamento de exceções e erros inesperados
-- [ ] Validação de comandos malformados
-
-### Tópico 6: Funcionalidades Avançadas
-- [ ] Sistema de persistência (salvar conhecimento em arquivo)
-- [ ] Import/Export de conhecimento
-- [ ] Sistema de sinônimos
-- [ ] Respostas contextuais mais inteligentes
-- [ ] Histórico de conversas
-
-### Tópico 7: Interface e UX
-- [ ] Melhorar layout do console
-- [ ] Sistema de cores no terminal
-- [ ] Comandos com autocompletar
-- [ ] Sistema de ajuda contextual
-- [ ] Interface mais intuitiva
-
 ## Como Contribuir
 
 1. Faça um fork do projeto
@@ -187,6 +135,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 **Felipe Tamura**
 - GitHub: [@Felipe-Tamura](https://github.com/Felipe-Tamura)
+- Linkedin: [@Felipe Tamura](https://www.linkedin.com/in/felipe-tamura-b35373215)
 
 ---
 
